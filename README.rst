@@ -19,6 +19,13 @@ features, including day and night lighting, cave rendering, mineral overlays,
 and many plugins for even more features! It is written mostly in Python with
 critical sections in C as an extension module.
 
+This Fork is intended to support Eloraams RedPower 2.
+    http://www.eloraam.com/
+Textures included with permission. 
+
+Not all blocks are supported yet and the code in this first draft is not as 
+cleanly isolated as I'd like it to be. But well... releasing early.
+
 Getting Started
 ---------------
 All documentation has been consolidated at our documentation site. For
