@@ -506,6 +506,33 @@ def load_water():
     blockmap[10] = generate_texture_tuple(lavablock,10)
     blockmap[11] = blockmap[10]
 
+def load_redpower2():
+    redpower2_block_images.append(_load_image("marble.png"))
+    redpower2_block_images.append(_load_image("basalt.png"))
+    redpower2_block_images.append(_load_image("marble_brick.png"))
+    redpower2_block_images.append(_load_image("basalt_cobble.png"))
+    redpower2_block_images.append(_load_image("basalt_brick.png"))
+    marbleblock = _build_block(redpower2_block_images[0], redpower2_block_images[0])
+    blockmap[122] = generate_texture_tuple(marbleblock,122)
+
+    redpower2_ore_images.append(_load_image("rp2-ore-0.png"))
+    redpower2_ore_images.append(_load_image("rp2-ore-1.png"))
+    redpower2_ore_images.append(_load_image("rp2-ore-2.png"))
+    redpower2_ore_images.append(_load_image("rp2-ore-3.png"))
+    redpower2_ore_images.append(_load_image("rp2-ore-4.png"))
+    redpower2_ore_images.append(_load_image("rp2-ore-5.png"))
+    redpower2_ore_images.append(_load_image("rp2-ore-6.png"))
+    redpower2_ore_images.append(_load_image("rp2-ore-7.png"))
+    rp2ore = _build_block(redpower2_ore_images[0], redpower2_ore_images[0])
+    blockmap[120] = generate_texture_tuple(rp2ore,120)
+
+    redpower2_wood_images.append(_load_image("rp2-rubberwood-side.png"))
+    redpower2_wood_images.append(_load_image("rp2-rubberwood-top.png"))
+    redpower2_wood_images.append(_load_image("rp2-rubberwood-leaves.png"))
+    rp2wood = _build_block(redpower2_wood_images[0], redpower2_wood_images[0])
+    blockmap[123] = generate_texture_tuple(rp2wood,123)
+
+
 def generate_opaque_mask(img):
     """ Takes the alpha channel of the image and generates a mask
     (used for lighting the block) that deprecates values of alpha
@@ -807,6 +834,38 @@ def generate_special_texture(blockID, data):
 
         return generate_texture_tuple(img, blockID)
 
+
+    if blockID == 120: # redpower2 ores
+        top = side = redpower2_ore_images[data]
+        img = _build_block(top, side, 120)
+        return generate_texture_tuple(img, blockID)
+
+    if blockID == 123: # redpower2 rubberwood
+        top = redpower2_wood_images[1]
+        side = redpower2_wood_images[0]
+        img = _build_block(top, side, 123)
+        return generate_texture_tuple(img, blockID)
+
+
+    if blockID == 121: # redpower rubberwood leaves
+        t = redpower2_wood_images[2]
+        img = _build_block(t, t, 121)
+        return generate_texture_tuple(img, blockID)
+
+    if blockID == 122: # redpower2
+        if data == 0: # marble
+            top = side = redpower2_block_images[0]
+        elif data == 1: # basalt
+            top = side = redpower2_block_images[1]
+        elif data == 2: # marble brick
+            top = side = redpower2_block_images[2]
+        elif data == 3: # basalt cobblestone
+            top = side = redpower2_block_images[3]
+        elif data == 4: # basalt brOAick
+            top = side = redpower2_block_images[4]
+
+        img = _build_block(top, side, 122)
+        return generate_texture_tuple(img, blockID)
 
     if blockID == 35: # wool
         if data == 0: # white
@@ -2332,7 +2391,7 @@ special_blocks = set([ 2,  6,  9, 17, 18, 20, 26, 23, 27, 28, 29, 31, 33,
                       34, 35, 43, 44, 50, 51, 53, 54, 55, 58, 59, 61, 62,
                       63, 64, 65, 66, 67, 68, 70, 71, 72, 75, 76, 79, 85,
                       86, 90, 91, 92, 93, 94, 96, 98, 99, 100, 101, 102,
-                      104, 105, 106, 107, 108, 109])
+                      104, 105, 106, 107, 108, 109, 120, 121, 122, 123]) # 120-123 is redpower2
 
 # this is a map of special blockIDs to a list of all 
 # possible values for ancillary data that it might have.
@@ -2400,10 +2459,17 @@ special_map[106] = (1,2,4,8) # vine, orientation
 special_map[107] = range(8) # fence gates, orientation + open bit
 special_map[108]= range(4)  # red stairs, orientation
 special_map[109]= range(4)  # stonebrick stairs, orientation
+special_map[120] = range(8) # redpower2: ore blocks
+special_map[121] = range(2) # redpower2: rubberwood
+special_map[122] = range(5) # redpower2: solid blocks
+special_map[123] = range(16) # redpower2: rubberwood leaves
 
 # placeholders that are generated in generate()
 bgcolor = None
 terrain_images = None
+redpower2_block_images = []
+redpower2_ore_images = []
+redpower2_wood_images = []
 blockmap = None
 biome_grass_texture = None
 specialblockmap = None
@@ -2426,6 +2492,7 @@ def generate(path=None,texture_size=24,bgc = (26,26,26,0),north_direction='lower
     global blockmap
     blockmap = _build_blockimages()
     load_water()
+    load_redpower2()
     
     # generate biome grass mask
     global biome_grass_texture

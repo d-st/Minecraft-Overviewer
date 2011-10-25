@@ -167,6 +167,8 @@ rendermode_normal_draw(void *data, RenderState *state, PyObject *src, PyObject *
         state->block == 8 || state->block == 9 ||
         /* leaves */
         state->block == 18 ||
+        /* redpower2 leaves */
+        state->block == 121 ||
         /* tallgrass, but not dead shrubs */
         (state->block == 31 && state->block_data != 0) ||
         /* pumpkin/melon stem, not fully grown. Fully grown stems
@@ -209,6 +211,7 @@ rendermode_normal_draw(void *data, RenderState *state, PyObject *src, PyObject *
                 }
                 break;
             case 18:
+	    case 121: /* redpower2 leaves */
                 /* leaves */
                 if (state->block_data != 2)
                 {
@@ -270,7 +273,9 @@ rendermode_normal_draw(void *data, RenderState *state, PyObject *src, PyObject *
                 facemask = NULL;
             }
             
-            if (state->block == 18 || state->block == 106) /* leaves and vines */
+            if (state->block == 18 || state->block == 106
+		|| state->block == 121 /* redpower2 leaves */
+		) /* leaves and vines */
             {
                 r = 37;
                 g = 118;
