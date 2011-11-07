@@ -279,7 +279,7 @@ def _build_block(top, side, blockID=None):
         return img
 
     ## special case for non-block things
-    if blockID in (37,38,6,39,40,83,30): ## flowers, sapling, mushrooms, reeds, web
+    if blockID in (37,38,6,39,40,83,30,119,124): ## flowers, sapling, mushrooms, reeds, web # 119:0 is redpower2 indigo, 119:1 rubbertree sapling
         #
         # instead of pasting these blocks at the cube edges, place them in the middle:
         # and omit the top
@@ -532,6 +532,15 @@ def load_redpower2():
     rp2wood = _build_block(redpower2_wood_images[0], redpower2_wood_images[0])
     blockmap[123] = generate_texture_tuple(rp2wood,123)
 
+    redpower2_plant_images.append(_load_image("rp2-plants-00.png"))
+    redpower2_plant_images.append(_load_image("rp2-plants-01.png"))
+
+    redpower2_flax_images.append(_load_image("rp2-flax-00.png"))
+    redpower2_flax_images.append(_load_image("rp2-flax-01.png"))
+    redpower2_flax_images.append(_load_image("rp2-flax-02.png"))
+    redpower2_flax_images.append(_load_image("rp2-flax-03.png"))
+    redpower2_flax_images.append(_load_image("rp2-flax-04.png"))
+    redpower2_flax_images.append(_load_image("rp2-flax-05.png"))
 
 def generate_opaque_mask(img):
     """ Takes the alpha channel of the image and generates a mask
@@ -1208,6 +1217,29 @@ def generate_special_texture(blockID, data):
         composite.alpha_over(img, crop3, (6,3), crop3)
         return generate_texture_tuple(img, blockID)
 
+    if blockID == 124: # redpower2 flax
+        raw_flax = redpower2_flax_images[data]
+#        flax1 = transform_image(raw_flax, blockID)
+        flax2 = transform_image_side(raw_flax, blockID)
+        flax3 = flax2.transpose(Image.FLIP_LEFT_RIGHT)
+
+        img = Image.new("RGBA", (24,24), bgcolor)
+#        composite.alpha_over(img, flax1, (0,12), flax1)
+        composite.alpha_over(img, flax2, (6,3),  flax2)
+        composite.alpha_over(img, flax3, (6,3),  flax3)
+        return generate_texture_tuple(img, blockID)
+
+    if blockID == 119: # redpower2 plants: 119:0 indigo, 119:1 rubbersapling
+        raw_plant = redpower2_plant_images[data]
+#        plant1 = transform_image(raw_plant, blockID)
+        plant2 = transform_image_side(raw_plant, blockID)
+        plant3 = plant2.transpose(Image.FLIP_LEFT_RIGHT)
+
+        img = Image.new("RGBA", (24,24), bgcolor)
+#        composite.alpha_over(img, plant1, (0,12), plant1)
+        composite.alpha_over(img, plant2, (6,3),  plant2)
+        composite.alpha_over(img, plant3, (6,3),  plant3)
+        return generate_texture_tuple(img, blockID)
 
     if blockID in (61, 62, 23): #furnace and burning furnace
         top = terrain_images[62]
@@ -2391,7 +2423,7 @@ special_blocks = set([ 2,  6,  9, 17, 18, 20, 26, 23, 27, 28, 29, 31, 33,
                       34, 35, 43, 44, 50, 51, 53, 54, 55, 58, 59, 61, 62,
                       63, 64, 65, 66, 67, 68, 70, 71, 72, 75, 76, 79, 85,
                       86, 90, 91, 92, 93, 94, 96, 98, 99, 100, 101, 102,
-                      104, 105, 106, 107, 108, 109, 120, 121, 122, 123]) # 120-123 is redpower2
+                      104, 105, 106, 107, 108, 109, 119, 120, 121, 122, 123, 124]) # 119-124 is redpower2
 
 # this is a map of special blockIDs to a list of all 
 # possible values for ancillary data that it might have.
@@ -2459,10 +2491,13 @@ special_map[106] = (1,2,4,8) # vine, orientation
 special_map[107] = range(8) # fence gates, orientation + open bit
 special_map[108]= range(4)  # red stairs, orientation
 special_map[109]= range(4)  # stonebrick stairs, orientation
+
+special_map[119] = range(2) # redpower2: plants: indigo, rubbersapling
 special_map[120] = range(8) # redpower2: ore blocks
 special_map[121] = range(2) # redpower2: rubberwood
 special_map[122] = range(5) # redpower2: solid blocks
 special_map[123] = range(16) # redpower2: rubberwood leaves
+special_map[124] = range(6)  # flax, grows from 0 to 5
 
 # placeholders that are generated in generate()
 bgcolor = None
@@ -2470,6 +2505,8 @@ terrain_images = None
 redpower2_block_images = []
 redpower2_ore_images = []
 redpower2_wood_images = []
+redpower2_plant_images = []
+redpower2_flax_images = []
 blockmap = None
 biome_grass_texture = None
 specialblockmap = None
