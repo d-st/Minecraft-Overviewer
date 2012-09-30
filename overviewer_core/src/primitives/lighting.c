@@ -317,7 +317,7 @@ lighting_draw(void *data, RenderState *state, PyObject *src, PyObject *mask, PyO
         }
         /* leaves are transparent for occlusion calculations but they 
          * per face-shading to look as in game */
-    } else if (is_transparent(state->block) && (state->block != 18)) {
+    } else if (is_transparent(state->block) && (state->block != 18 && state->block != 141)) {
         /* transparent: do shading on whole block */
         do_shading_with_mask(self, state, x, y, z, mask_light);
     } else {

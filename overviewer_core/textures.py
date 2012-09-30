@@ -56,7 +56,7 @@ class Textures(object):
     def __getstate__(self):
         # we must get rid of the huge image lists, and other images
         attributes = self.__dict__.copy()
-        for attr in ['terrain_images', 'blockmap', 'biome_grass_texture', 'watertexture', 'lavatexture', 'firetexture', 'portaltexture', 'lightcolor', 'grasscolor', 'foliagecolor', 'watercolor']:
+        for attr in ['terrain_images', 'redpower_world', 'blockmap', 'biome_grass_texture', 'watertexture', 'lavatexture', 'firetexture', 'portaltexture', 'lightcolor', 'grasscolor', 'foliagecolor', 'watercolor']:
             try:
                 del attributes[attr]
             except KeyError:
@@ -75,8 +75,9 @@ class Textures(object):
     
     def generate(self):
         # maps terrainids to 16x16 images
+        self.redpower_world = self._split_terrain(self.load_image("world1.png"))
         self.terrain_images = self._split_terrain(self.load_image("terrain.png"))
-        
+
         # generate biome grass mask
         self.biome_grass_texture = self.build_block(self.terrain_images[0], self.terrain_images[38])
         
@@ -3583,3 +3584,36 @@ def cocoa_plant(self, blockid, data):
             img = img.transpose(Image.FLIP_LEFT_RIGHT)
 
     return img
+
+## redpower blocks
+
+# stones
+@material(blockid=142, data=range(5), solid=True)
+def rp2stone(self, blockid, data):
+    texture = self.redpower_world[1*16+data]
+    return self.build_block(texture, texture)
+
+# leaves
+@material(blockid=141, data=range(1), transparent=True, solid=True)
+def rp2leaves(self, blockid, data):
+    texture = self.redpower_world[3*16+data]
+    return self.build_block(texture, texture)
+# wood
+@material(blockid=143, data=range(1), solid=True)
+def rp2leaves(self, blockid, data):
+    if data == 0:
+        side = self.redpower_world[3*16+2]
+        top  = self.redpower_world[3*16+3]
+    return self.build_block(top, side)
+
+# ores
+@material(blockid=140, data=range(8), solid=True)
+def rp2ores(self, blockid, data):
+    texture = self.redpower_world[2*16+data] 
+    return self.build_block(texture, texture)
+
+# storage blocks
+@material(blockid=145, data=range(3), solid=True)
+def rp2storage(self, blockid, data):
+    texture = self.redpower_world[5*16+data]
+    return self.build_block(texture, texture)
