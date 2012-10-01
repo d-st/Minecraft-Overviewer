@@ -56,7 +56,22 @@ class Textures(object):
     def __getstate__(self):
         # we must get rid of the huge image lists, and other images
         attributes = self.__dict__.copy()
-        for attr in ['terrain_images', 'redpower_world', 'blockmap', 'biome_grass_texture', 'watertexture', 'lavatexture', 'firetexture', 'portaltexture', 'lightcolor', 'grasscolor', 'foliagecolor', 'watercolor']:
+        for attr in ['terrain_images', 
+                     'redpower_world1', 
+                     'redpower_worlditems1', 
+                     'redpower_lighting1', 
+                     'redpower_base1', 
+                     'redpower_machine1', 
+                     'blockmap', 
+                     'biome_grass_texture', 
+                     'watertexture', 
+                     'lavatexture', 
+                     'firetexture', 
+                     'portaltexture', 
+                     'lightcolor', 
+                     'grasscolor', 
+                     'foliagecolor', 
+                     'watercolor',]:
             try:
                 del attributes[attr]
             except KeyError:
@@ -75,8 +90,14 @@ class Textures(object):
     
     def generate(self):
         # maps terrainids to 16x16 images
-        self.redpower_world = self._split_terrain(self.load_image("world1.png"))
         self.terrain_images = self._split_terrain(self.load_image("terrain.png"))
+
+        # load redpower sheets
+        self.redpower_world1 = self._split_terrain(self.load_image("world1.png"))
+        self.redpower_worlditems1 = self._split_terrain(self.load_image("worlditems1.png"))
+        self.redpower_lighting1 = self._split_terrain(self.load_image("lighting1.png"))
+        self.redpower_base1 = self._split_terrain(self.load_image("base1.png"))
+        self.redpower_machine1 = self._split_terrain(self.load_image("machine1.png"))
 
         # generate biome grass mask
         self.biome_grass_texture = self.build_block(self.terrain_images[0], self.terrain_images[38])
@@ -3590,30 +3611,187 @@ def cocoa_plant(self, blockid, data):
 # stones
 @material(blockid=142, data=range(5), solid=True)
 def rp2stone(self, blockid, data):
-    texture = self.redpower_world[1*16+data]
+    texture = self.redpower_world1[1*16+data]
     return self.build_block(texture, texture)
 
 # leaves
 @material(blockid=141, data=range(1), transparent=True, solid=True)
 def rp2leaves(self, blockid, data):
-    texture = self.redpower_world[3*16+data]
+    texture = self.redpower_world1[3*16+data]
     return self.build_block(texture, texture)
 # wood
 @material(blockid=143, data=range(1), solid=True)
 def rp2leaves(self, blockid, data):
     if data == 0:
-        side = self.redpower_world[3*16+2]
-        top  = self.redpower_world[3*16+3]
+        side = self.redpower_world1[3*16+2]
+        top  = self.redpower_world1[3*16+3]
     return self.build_block(top, side)
 
 # ores
 @material(blockid=140, data=range(8), solid=True)
 def rp2ores(self, blockid, data):
-    texture = self.redpower_world[2*16+data] 
+    texture = self.redpower_world1[2*16+data] 
     return self.build_block(texture, texture)
 
 # storage blocks
 @material(blockid=145, data=range(3), solid=True)
 def rp2storage(self, blockid, data):
-    texture = self.redpower_world[5*16+data]
+    texture = self.redpower_world1[5*16+data]
     return self.build_block(texture, texture)
+
+# flax
+@material(blockid=144, data=range(6), transparent=True, nospawn=True)
+def rp2flax(self, blockid, data):
+    raw_crop = self.redpower_world1[4*16+data]
+    crop1 = self.transform_image_top(raw_crop)
+    crop2 = self.transform_image_side(raw_crop)
+    crop3 = crop2.transpose(Image.FLIP_LEFT_RIGHT)
+
+    img = Image.new("RGBA", (24,24), self.bgcolor)
+    if data < 5: # don't show "floor" texture on top block
+        alpha_over(img, crop1, (0,12), crop1)
+    alpha_over(img, crop2, (6,3), crop2)
+    alpha_over(img, crop3, (6,3), crop3)
+    return img
+
+# flowers
+@material(blockid=139, data=range(3), transparent=True)
+def rp2sprite(self, blockid, data):
+    if data == 2: data = 1 # rubber saplings have 1 and 2 
+    return self.build_sprite(self.redpower_worlditems1[1+data])
+
+# lamps off
+@material(blockid=147, data=range(16), solid=True)
+def rp2lamps(self, blockid, data):
+    texture = self.redpower_lighting1[1*16+data] 
+    return self.build_block(texture, texture)
+# lamps on
+@material(blockid=146, data=range(16), solid=True)
+def rp2lamps(self, blockid, data):
+    texture = self.redpower_lighting1[2*16+data] 
+    return self.build_block(texture, texture)
+
+# base blocks
+@material(blockid=137, data=range(5), solid=True)
+def rp2furnaces(self, blockid, data):
+    # if data == 0: # alloy furnace
+    top   = self.redpower_base1[1*16+3]
+    front = self.redpower_base1[1*16+1]
+    side  = self.redpower_base1[1*16+0]
+
+    if data == 1: # blue furnace
+        top   = self.redpower_machine1[5*16+3]
+        front = self.redpower_machine1[5*16+1]
+        side  = self.redpower_machine1[5*16+0]        
+    elif data == 2: # buffer
+        top   = self.redpower_machine1[5*16+9]
+        front = self.redpower_machine1[5*16+8]
+        side  = front                
+    elif data == 3: # project table
+        top   = self.redpower_base1[2*16+0]
+        front = self.redpower_base1[2*16+2]
+        side  = self.redpower_base1[2*16+1]
+    elif data == 4: # blue alloy furnace
+        top   = self.redpower_machine1[10*16+3]
+        front = self.redpower_machine1[10*16+1]
+        side  = self.redpower_machine1[10*16+0]        
+    
+    # assume south-pointing position
+    return self.build_full_block(top, None, None, side, front)
+
+# solar panels
+@material(blockid=151, data=range(4), transparent=True, solid=True)
+def rp2solar(self, blockid, data):
+    if data == 0: # solar panel
+        side = self.redpower_machine1[5*16+6]
+        top  = self.redpower_machine1[5*16+5]
+
+        # cut the side texture
+        mask = side.crop((0,12,16,16))
+
+        top = self.transform_image_top(top)
+        side = self.transform_image_side(mask)
+        otherside = side.transpose(Image.FLIP_LEFT_RIGHT)
+        
+        img = Image.new("RGBA", (24,24), self.bgcolor)
+        alpha_over(img, side, (0,15), side)
+        alpha_over(img, otherside, (12,15), otherside)
+        alpha_over(img, top, (0,9), top)
+        return img
+    elif data == 1: # pump
+        pass
+    elif data == 2: # accelerator
+        pass
+    else: # data == 3: # grate
+        top  = self.redpower_machine1[2*16+13]
+        side = self.redpower_machine1[2*16+12]
+        return self.build_block(top, side)
+
+# machines
+@material(blockid=150, data=range(16), solid=True)
+def rp2machine(self, blockid, data):
+    #if data == 0: # deployer
+    top   = self.redpower_machine1[3*16+5]
+    side1 = self.redpower_machine1[3*16+7]
+    side2 = self.redpower_machine1[3*16+8]
+    if data == 1: # breaker
+        top   = self.redpower_machine1[3*16+1]
+        side1 = self.redpower_machine1[3*16+3]
+        side2 = side1
+    elif data == 2: # transposer
+        top   = self.redpower_machine1[3*16+9]
+        side1 = self.redpower_machine1[3*16+11]
+        side2 = side1
+    elif data == 3: # filter
+        top   = self.redpower_machine1[3*16+9]
+        side1 = self.redpower_machine1[3*16+13]
+        side2 = side1
+    elif data == 4: # item detector
+        top   = self.redpower_machine1[6*16+7]
+        side1 = self.redpower_machine1[6*16+2]
+        side2 = self.redpower_machine1[6*16+0]
+    elif data == 5: # sorter
+        top   = self.redpower_machine1[7*16+0]
+        side1 = self.redpower_machine1[7*16+4]
+        side2 = side1
+    elif data == 6: # batbox
+        top   = self.redpower_machine1[8*16+0]
+        side1 = self.redpower_machine1[8*16+6]
+        side2 = side1
+    elif data == 7: # motor
+        top   = self.redpower_machine1[9*16+7]
+        side1 = self.redpower_machine1[9*16+0]
+        side2 = self.redpower_machine1[9*16+6]
+    elif data == 8: # retriever
+        top   = self.redpower_machine1[7*16+13]
+        side1 = self.redpower_machine1[7*16+9]
+        side2 = side1
+    elif data == 9: # TODO ???
+        pass
+    elif data == 10: # regulator
+        top   = self.redpower_machine1[6*16+7]
+        side1 = self.redpower_machine1[6*16+10]
+        side2 = self.redpower_machine1[6*16+8]
+    elif data == 11: # thermopile
+        top   = self.redpower_machine1[7*16+12]
+        side1 = self.redpower_machine1[7*16+11]
+        side1 = self.redpower_machine1[7*16+10]
+    elif data == 12: # igniter
+        top   = self.redpower_machine1[10*16+4]
+        side1 = self.redpower_machine1[10*16+6]
+        side2 = self.redpower_machine1[10*16+7]
+    elif data == 13: # assembler
+        top   = self.redpower_machine1[10*16+8]
+        side1 = self.redpower_machine1[10*16+10]
+        side2 = self.redpower_machine1[10*16+11]
+    elif data == 14: # ejector
+        top   = self.redpower_machine1[5*16+9]
+        side1 = self.redpower_machine1[5*16+11]
+        side2 = self.redpower_machine1[5*16+10]
+    elif data == 15: # relay
+        top   = self.redpower_machine1[5*16+9]
+        side1 = self.redpower_machine1[5*16+13]
+        side2 = self.redpower_machine1[5*16+10]
+
+    # assume south-pointing position
+    return self.build_full_block(top, None, None, side2, side1)
