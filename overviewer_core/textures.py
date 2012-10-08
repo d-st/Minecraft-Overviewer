@@ -3766,16 +3766,16 @@ def rp2machine(self, blockid, data):
         top   = self.redpower_machine1[7*16+13]
         side1 = self.redpower_machine1[7*16+9]
         side2 = side1
-    elif data == 9: # TODO ???
+    elif data == 9: # no machine defined yet
         pass
     elif data == 10: # regulator
         top   = self.redpower_machine1[6*16+7]
         side1 = self.redpower_machine1[6*16+10]
         side2 = self.redpower_machine1[6*16+8]
     elif data == 11: # thermopile
-        top   = self.redpower_machine1[7*16+12]
-        side1 = self.redpower_machine1[7*16+11]
-        side1 = self.redpower_machine1[7*16+10]
+        top   = self.redpower_machine1[8*16+12]
+        side1 = self.redpower_machine1[8*16+11]
+        side2 = self.redpower_machine1[8*16+10]
     elif data == 12: # igniter
         top   = self.redpower_machine1[10*16+4]
         side1 = self.redpower_machine1[10*16+6]
@@ -3795,3 +3795,9 @@ def rp2machine(self, blockid, data):
 
     # assume south-pointing position
     return self.build_full_block(top, None, None, side2, side1)
+
+# frames
+@material(blockid=152, data=range(1), transparent=True, solid=True)
+def rp2frames(self, blockid, data):
+    texture = self.redpower_machine1[1+data] 
+    return self.build_block(texture, texture)
