@@ -62,6 +62,7 @@ class Textures(object):
                      'redpower_lighting1', 
                      'redpower_base1', 
                      'redpower_machine1', 
+                     'railcraft',
                      'blockmap', 
                      'biome_grass_texture', 
                      'watertexture', 
@@ -98,6 +99,9 @@ class Textures(object):
         self.redpower_lighting1 = self._split_terrain(self.load_image("lighting1.png"))
         self.redpower_base1 = self._split_terrain(self.load_image("base1.png"))
         self.redpower_machine1 = self._split_terrain(self.load_image("machine1.png"))
+
+        # load railcraft sheet
+        self.redpower_machine1 = self._split_terrain(self.load_image("railcraft.png"))
 
         # generate biome grass mask
         self.biome_grass_texture = self.build_block(self.terrain_images[0], self.terrain_images[38])
@@ -3801,3 +3805,32 @@ def rp2machine(self, blockid, data):
 def rp2frames(self, blockid, data):
     texture = self.redpower_machine1[1+data] 
     return self.build_block(texture, texture)
+ 
+## railcraft
+@material(blockid=204, data=(7,8,12), solid=True)
+def railmachine(self, blockid, data):
+    top  = self.railcraft[10*16+10] # 7: sand brick
+    side = top
+    if data == 8:
+        top  = self.railcraft[11*16+12] # 8: rolling machine
+        side = self.railcraft[11*16+11] # 8: rolling machine
+    elif data == 12:
+        top  = self.railcraft[13*16+7] # 12: blast furnace/infernal brick
+        side = top
+    return self.build_block(top, side)
+
+@material(blockid=209, data=range(4), solid=True)
+def railblock(self, blockid, data):
+    top  = self.railcraft[11*16+9] # 0: world anchor
+    side = self.railcraft[12*16+9] # 0: world anchor
+    if data == 1:
+        top = self.railcraft[15*16+7] # 1: concrete
+        side = top
+    elif data == 2:
+        top = self.railcraft[11*16+4] # 2: steel
+        side = top
+    elif data == 3:
+        top = self.railcraft[13*16+7] # 3: blast furnace/infernal brick
+        side = top
+
+    return self.build_block(top, side)
