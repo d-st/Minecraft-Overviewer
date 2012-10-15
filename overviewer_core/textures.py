@@ -101,7 +101,7 @@ class Textures(object):
         self.redpower_machine1 = self._split_terrain(self.load_image("machine1.png"))
 
         # load railcraft sheet
-        self.redpower_machine1 = self._split_terrain(self.load_image("railcraft.png"))
+        self.railcraft = self._split_terrain(self.load_image("railcraft.png"))
 
         # generate biome grass mask
         self.biome_grass_texture = self.build_block(self.terrain_images[0], self.terrain_images[38])
